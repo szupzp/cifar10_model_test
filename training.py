@@ -42,7 +42,6 @@ BATCH_SIZE = 100
 CAPACITY = 20000
 MAX_STEP = 3000  # with current parameters, it is suggested to use MAX_STEP>10k
 learning_rate = 0.00001  # with current parameters, it is suggested to use learning rate<0.0001
-learning_rate = 0.00001  # with current parameters, it is suggested to use learning rate<0.0001
 
 # %%
 train_dir = '/home/program/PycharmProjects/pzp_vgg16_project/data/train/'
@@ -80,9 +79,9 @@ def training():
     acc = model.evaluation(logits, train_label_batch)
 
     x = tf.placeholder(tf.float32, shape=[BATCH_SIZE, IMG_W, IMG_H, 3])
-    y_ = tf.placeholder(tf.int16, shape=[BATCH_SIZE])
+    y_ = tf.placeholder(tf.int16, shape=[BATCH_SIZE,N_CLASSES])
     x_t = tf.placeholder(tf.float32, shape=[400, IMG_W, IMG_H, 3])
-    y_t = tf.placeholder(tf.int16, shape=[400])
+    y_t = tf.placeholder(tf.int16, shape=[400,N_CLASSES])
 
     #def training_model():
     ####training
@@ -144,7 +143,7 @@ def get_one_image(train, train_label):
     n = len(train)
     ind = np.random.randint(0, n)
     img_dir = train[ind]
-    print ('the file name is : %s \nreally label is : %d' %(train[ind],train_label[ind]))
+    print ('the file name is : %s \nreally label is : %d' %(train[ind],train_label[ind ,1]))
     image = Image.open(img_dir)
     #plt.imshow(image)
     image = np.array(image)

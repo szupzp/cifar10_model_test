@@ -125,7 +125,7 @@ def losses(logits, labels):
         loss tensor of float type
     '''
     with tf.variable_scope('loss') as scope:
-        cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
             logits=logits, labels=labels, name='xentropy_per_example')
         loss = tf.reduce_mean(cross_entropy, name='loss')
         tf.summary.scalar(scope.name + '/loss', loss)
@@ -151,7 +151,7 @@ def trainning(loss, learning_rate):
 
 
 # %%
-def evaluation(logits, labels):
+def evaluation(logit, labels):
     """Evaluate the quality of the logits at predicting the label.
     Args:
       logits: Logits tensor, float - [batch_size, NUM_CLASSES].
@@ -162,7 +162,8 @@ def evaluation(logits, labels):
       that were predicted correctly.
     """
     with tf.variable_scope('accuracy') as scope:
-        correct = tf.nn.in_top_k(logits, labels, 1)
+        logits = tf.nn.softmax(logit)
+        correct = tf.equal(tf.argmax(logits,1), tf.argmax(labels,1))
         correct = tf.cast(correct, tf.float16)
         accuracy = tf.reduce_mean(correct)
         tf.summary.scalar(scope.name + '/accuracy', accuracy)

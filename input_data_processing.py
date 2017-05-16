@@ -7,7 +7,12 @@ import math
 
 # %%
 
-
+def one_hot_encode(labels):
+    n_labels = len(labels)
+    n_unique_labels = len(np.unique(labels))
+    one_hot_encode = np.zeros((n_labels,n_unique_labels))
+    one_hot_encode[np.arange(n_labels), labels] = 1
+    return one_hot_encode
 
 def get_train_files_list(file_dir, ratio = 0.2):
     '''
@@ -50,8 +55,8 @@ def get_train_files_list(file_dir, ratio = 0.2):
     val_images = all_image_list[n_train: -1]
     val_labels = all_label_list[n_train: -1]
     val_labels = [int(float(i)) for i in val_labels]
-    
-    
+    tra_labels = one_hot_encode(tra_labels)
+    val_labels = one_hot_encode(val_labels)
     
     return tra_images,tra_labels,val_images,val_labels
 
@@ -87,7 +92,7 @@ def get_test_files_list(file_dir):
     image_list = list(temp[:, 0])
     label_list = list(temp[:, 1])
     label_list = [int(i) for i in label_list]
-
+    label_list = one_hot_encode(label_list)
     return image_list, label_list
 
 
@@ -131,7 +136,7 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
                                               num_threads=64,
                                               capacity=capacity)
 
-    label_batch = tf.reshape(label_batch, [batch_size])
+    label_batch = tf.reshape(label_batch, [batch_size,2])
     image_batch = tf.cast(image_batch, tf.float32)
 
     return image_batch, label_batch
