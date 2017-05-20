@@ -1,6 +1,5 @@
 from PIL import Image
-import matplotlib.pyplot as plt
-import  input_data_processing
+from skimage import io
 import  tensorflow as tf
 import  numpy as np
 import  cifi_10_model as model
@@ -15,7 +14,7 @@ def get_one_image(val, val_lables):
     img_dir = val[ind]
 
     image = Image.open(img_dir)
-    # io.imshow(image)
+    io.imshow(image)
     if val_lables[ind] == 0:
         print('this is normal example with lable:%d' % val_lables[ind])
     if val_lables[ind] == 1:
@@ -58,3 +57,39 @@ def evaluate_one_image(test,test_label):
                 print('This is Normal with possibility %.6f' % prediction[0, 0])
             else:
                 print('This is Pathology with possibility %.6f' % prediction[0, 1])
+
+import matplotlib.pyplot as plt
+
+BATCH_SIZE = 2
+CAPACITY = 256
+IMG_W = 208
+IMG_H = 208
+
+train_dir = '/home/kevin/tensorflow/cats_vs_dogs/data/train/'
+
+image_list, label_list = get_files(train_dir)
+image_batch, label_batch = get_batch(image_list, label_list, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
+
+with tf.Session() as sess:
+   i = 0
+   coord = tf.train.Coordinator()
+   threads = tf.train.start_queue_runners(coord=coord)
+
+   try:
+       while not coord.should_stop() and i<1:
+
+           img, label = sess.run([image_batch, label_batch])
+
+           # just test one batch
+           for j in np.arange(BATCH_SIZE):
+               print('label: %d' %label[j])
+               plt.imshow(img[j,:,:,:])
+               plt.show()
+           i+=1
+
+   except tf.errors.OutOfRangeError:
+       print('done!')
+   finally:
+       coord.request_stop()
+   coord.join(threads)
+

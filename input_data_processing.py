@@ -113,7 +113,7 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
     '''
 
     image = tf.cast(image, tf.string)
-    label = tf.cast(label, tf.int32)
+    label = tf.cast(label, tf.float32)
 
     # make an input queue
     input_queue = tf.train.slice_input_producer([image, label])
@@ -136,7 +136,7 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
                                               num_threads=64,
                                               capacity=capacity)
 
-    label_batch = tf.reshape(label_batch, [batch_size,2])
+    label_batch = tf.cast(tf.reshape(label_batch, [batch_size,2]),tf.float32)
     image_batch = tf.cast(image_batch, tf.float32)
 
     return image_batch, label_batch
@@ -145,7 +145,7 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
 
 
 # import matplotlib.pyplot as plt
-#
+# from skimage import io
 # BATCH_SIZE = 2
 # CAPACITY = 256
 # IMG_W = 224
@@ -153,7 +153,7 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
 #
 # train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/train/'
 # ratio = 0.2
-# tra_images, tra_labels, val_images, val_labels = get_files(train_dir, ratio)
+# tra_images, tra_labels, val_images, val_labels = get_train_files_list(train_dir, ratio)
 # tra_image_batch, tra_label_batch = get_batch(tra_images, tra_labels, IMG_W, IMG_H, BATCH_SIZE, CAPACITY)
 #
 #
@@ -170,7 +170,7 @@ def get_batch(image, label, image_W, image_H, batch_size, capacity):
 #
 #            # just test one batch
 #            for j in np.arange(BATCH_SIZE):
-#                print('label: %d' %label[j])
+#                print('label: %.2f' %label[j,1])
 #                plt.imshow(img[j,:,:,:])
 #                plt.show()
 #            i+=1

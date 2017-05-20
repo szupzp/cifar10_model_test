@@ -6,7 +6,7 @@ from skimage import io
 
 def read_test_set(image1, label1,batch_size,image_W, image_H,capacity):
     image = tf.cast(image1, tf.string)
-    label = tf.cast(label1, tf.int32)
+    label = tf.cast(label1, tf.float32)
 
     # make an input queue
     input_queue = tf.train.slice_input_producer([image, label])
@@ -29,8 +29,7 @@ def read_test_set(image1, label1,batch_size,image_W, image_H,capacity):
                                               num_threads=64,
                                               capacity=capacity)
 
-    label_batch = tf.reshape(label_batch, [batch_size,1])
-    label_batch = tf.to_int64(label_batch)
+    label_batch = tf.reshape(label_batch, [batch_size,2])
     image_batch = tf.cast(image_batch, tf.float32)
 
     return image_batch, label_batch
@@ -48,23 +47,23 @@ def compute_accuracy(v_xs, v_ys):
    '''
 BATCH_SIZE = 400
 N_CLASSES = 2
-CAPACITY = 800
+CAPACITY = 8000
 IMG_W = 224 
 IMG_H = 224
 
 # you need to change the directories to yours.
-test_dir = '/home/program/PycharmProjects/pzp_vgg16_project/data/test/'
-logs_train_dir = '/home/program/PycharmProjects/pzp_vgg16_project/logs/train/'
+test_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/test/'
+logs_train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/logs/train/'
 test, test_label = input_data_processing.get_test_files_list(test_dir)
 test_batch,test_label_batch = read_test_set(test,test_label,BATCH_SIZE,IMG_H,IMG_W,CAPACITY)
 logits = model.inference(test_batch, BATCH_SIZE, N_CLASSES)
 prodiction = tf.nn.softmax(logits)
-correct_prediction = tf.equal(tf.argmax(prodiction,1), test_label_batch[:,0])
+correct_prediction = tf.equal(tf.argmax(prodiction,1), tf.argmax(test_label_batch,1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 #acc = model.evaluation(logits, test_label_batch)
 
 x = tf.placeholder(tf.float32, shape=[BATCH_SIZE, IMG_W, IMG_H, 3])
-y_ = tf.placeholder(tf.int16, shape=[BATCH_SIZE,1])
+y_ = tf.placeholder(tf.int16, shape=[BATCH_SIZE,2])
 with tf.Session() as sess:
     saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
@@ -74,7 +73,7 @@ with tf.Session() as sess:
     threads = tf.train.start_queue_runners(sess=sess, coord=coord)
     try:
         tes_images, tes_labels = sess.run([test_batch, test_label_batch])
-        test_acc,right_prodiction = sess.run([accuracy, correct_prediction],feed_dict={x: tes_images, y_: tes_labels})
+        test_acc = sess.run(accuracy,feed_dict={x: tes_images, y_: tes_labels})
         print('the test accuracy is: %.2f' % test_acc)
 
     except tf.errors.OutOfRangeError:

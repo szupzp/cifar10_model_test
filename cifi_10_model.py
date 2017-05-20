@@ -125,11 +125,11 @@ def losses(logits, labels):
         loss tensor of float type
     '''
     with tf.variable_scope('loss') as scope:
-        cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
-            logits=logits, labels=labels, name='xentropy_per_example')
-        loss = tf.reduce_mean(cross_entropy, name='loss')
-        tf.summary.scalar(scope.name + '/loss', loss)
-    return loss
+        # logits = tf.nn.softmax(logits)
+        # cross_entropy = tf.reduce_mean(-tf.reduce_sum(labels * tf.log(logits), reduction_indices=[1]))
+        cross_entropy = tf.reduce_mean(tf.losses.softmax_cross_entropy(labels,logits,scope='loss'))
+        tf.summary.scalar(scope.name + '/loss_entropy', cross_entropy)
+    return cross_entropy
 
 
 # %%
@@ -164,7 +164,7 @@ def evaluation(logit, labels):
     with tf.variable_scope('accuracy') as scope:
         logits = tf.nn.softmax(logit)
         correct = tf.equal(tf.argmax(logits,1), tf.argmax(labels,1))
-        correct = tf.cast(correct, tf.float16)
+        correct = tf.cast(correct, tf.float32)
         accuracy = tf.reduce_mean(correct)
         tf.summary.scalar(scope.name + '/accuracy', accuracy)
     return accuracy
