@@ -31,7 +31,6 @@ import numpy as np
 import tensorflow as tf
 import input_data_processing
 import cifi_10_model as model
-import test_on_one_image
 from skimage import io
 # %%
 
@@ -41,12 +40,12 @@ IMG_H = 224
 RATIO = 0.2  # take 20% of dataset as validation data
 BATCH_SIZE = 64
 CAPACITY = 20000
-MAX_STEP = 50000  # with current parameters, it is suggested to use MAX_STEP>10k
+MAX_STEP = 8000  # with current parameters, it is suggested to use MAX_STEP>10k
 learning_rate = 0.00001  # with current parameters, it is suggested to use learning rate<0.0001
 
 # %%
-train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/train/'
-test_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/test/'
+train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/data_256/train/'
+test_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/data_256/test/'
 logs_train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/logs/train/'
 logs_val_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/logs/val/'
 logs_test_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/logs/test/'
@@ -157,7 +156,7 @@ def evaluate_one_image():
    '''
 
    # you need to change the directories to yours.
-   train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/test/'
+   train_dir = '/home/pzp/PycharmProjects/pzp_vgg16_project/data/data_256/test/'
    train, train_label = input_data_processing.get_test_files_list(train_dir)
    image_array = get_one_image(train,train_label)
 
